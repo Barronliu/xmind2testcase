@@ -28,9 +28,11 @@ def get_xmind_testsuites(xmind_file):
     workbook = xmind.load(xmind_file)
     xmind_content_dict = workbook.getData()
     logging.debug("loading XMind file(%s) dict data: %s", xmind_file, xmind_content_dict)
+    print("xmind_content_dict: ", xmind_content_dict)
 
     if xmind_content_dict:
         testsuites = xmind_to_testsuites(xmind_content_dict)
+        #print("testsuites: ", testsuites)
         return testsuites
     else:
         logging.error('Invalid XMind file(%s): it is empty!', xmind_file)
@@ -89,15 +91,22 @@ def get_xmind_testcase_list(xmind_file):
     testcases = []
 
     for testsuite in testsuites:
+        print("testsuite: ", testsuite.to_dict())
         product = testsuite.name
         for suite in testsuite.sub_suites:
+            print("suite: ", suite)
             for case in suite.testcase_list:
+                print("case: ", case)
                 case_data = case.to_dict()
+                print("case_data: ", case_data)
                 case_data['product'] = product
+                print("case_data['product']: ", case_data['product'])
                 case_data['suite'] = suite.name
+                print("case_data['suite']: ", case_data['suite'])
                 testcases.append(case_data)
 
     logging.info('Convert XMind file(%s) to testcases dict data successfully!', xmind_file)
+    print("testcases: ", testcases)
     return testcases
 
 
@@ -137,3 +146,6 @@ def xmind_testcase_to_json_file(xmind_file):
         logging.info('Convert XMind file(%s) to a testcase json file(%s) successfully!', xmind_file, testcase_json_file)
 
     return testcase_json_file
+
+if __name__ == "__main__":
+    get_xmind_testcase_list("首页深度知识-V6.0.xmind")

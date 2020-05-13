@@ -19,6 +19,7 @@ def xmind_to_testsuites(xmind_content_dict):
     for sheet in xmind_content_dict:
         logging.debug('start to parse a sheet: %s', sheet['title'])
         root_topic = sheet['topic']
+        print("root_topic: ", root_topic)
         sub_topics = root_topic.get('topics', [])
 
         if sub_topics:
@@ -26,6 +27,7 @@ def xmind_to_testsuites(xmind_content_dict):
         else:
             logging.warning('This is a blank sheet(%s), should have at least 1 sub topic(test suite)', sheet['title'])
             continue
+        # change by barron:change "root_topic" to "sub_topics"
         suite = sheet_to_suite(root_topic)
         # suite.sheet_name = sheet['title']  # root testsuite has a sheet_name attribute
         logging.debug('sheet(%s) parsing complete: %s', sheet['title'], suite.to_dict())
@@ -185,7 +187,7 @@ def get_priority(case_dict):
 
 def gen_testcase_title(topics):
     """Link all topic's title as testcase title"""
-    titles = [topic['title'] for topic in topics]
+    titles = [topic['title']for topic in topics]
     titles = filter_empty_or_ignore_element(titles)
 
     # when separator is not blank, will add space around separator, e.g. '/' will be changed to ' / '
