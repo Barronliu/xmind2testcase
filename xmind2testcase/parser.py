@@ -21,6 +21,9 @@ def xmind_to_testsuites(xmind_content_dict):
         root_topic = sheet['topic']
         print("root_topic: ", root_topic)
         sub_topics = root_topic.get('topics', [])
+        sub_topics_2 = root_topic['topics']
+        print("sub_topics: ", sub_topics)
+        print("sub_topics_2: ", sub_topics_2)
 
         if sub_topics:
             root_topic['topics'] = filter_empty_or_ignore_topic(sub_topics)
@@ -84,12 +87,13 @@ def sheet_to_suite(root_topic):
 
 def parse_testsuite(suite_dict):
     testsuite = TestSuite()
-    testsuite.name = suite_dict['title']
+    #testsuite.name = suite_dict['title']
     testsuite.details = suite_dict['note']
     testsuite.testcase_list = []
     logging.debug('start to parse a testsuite: %s', testsuite.name)
 
     for cases_dict in suite_dict.get('topics', []):
+        testsuite.name = suite_dict['title'] + cases_dict['title']
         for case in recurse_parse_testcase(cases_dict):
             testsuite.testcase_list.append(case)
 
