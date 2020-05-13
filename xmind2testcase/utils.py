@@ -74,6 +74,7 @@ def get_xmind_testsuite_list(xmind_file):
         suite_data_list.append(suite_data)
 
     logging.info('Convert XMind file(%s) to testsuite data list successfully!', xmind_file)
+    print("suite_data_list: ", suite_data_list)
     return suite_data_list
 
 
@@ -95,6 +96,8 @@ def get_xmind_testcase_list(xmind_file):
                 case_data = case.to_dict()
                 case_data['product'] = product
                 case_data['suite'] = suite.name
+                print("case_data['product']: ", case_data['product'])
+                print("case_data['suite']: ", case_data['suite'])
                 testcases.append(case_data)
 
     logging.info('Convert XMind file(%s) to testcases dict data successfully!', xmind_file)
@@ -137,3 +140,7 @@ def xmind_testcase_to_json_file(xmind_file):
         logging.info('Convert XMind file(%s) to a testcase json file(%s) successfully!', xmind_file, testcase_json_file)
 
     return testcase_json_file
+
+
+if __name__ == "__main__":
+    get_xmind_testsuite_list("直播-V5.9.xmind")
