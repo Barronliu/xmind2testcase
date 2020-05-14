@@ -20,10 +20,7 @@ def xmind_to_testsuites(xmind_content_dict):
         logging.debug('start to parse a sheet: %s', sheet['title'])
         root_topic = sheet['topic']
         product = root_topic['title']
-        print("product: ", product)
-        print("root_topic: ", root_topic)
         sub_topics = root_topic.get('topics', [])
-        print("sub_topics: ", sub_topics)
 
         if sub_topics:
             root_topic['topics'] = filter_empty_or_ignore_topic(sub_topics)
@@ -31,12 +28,9 @@ def xmind_to_testsuites(xmind_content_dict):
             logging.warning('This is a blank sheet(%s), should have at least 1 sub topic(test suite)', sheet['title'])
             continue
         # change by barron:change "root_topic" to "sub_topics"
-        #suite = sheet_to_suite(root_topic)
-        # suite.sheet_name = sheet['title']  # root testsuite has a sheet_name attribute
-        #logging.debug('sheet(%s) parsing complete: %s', sheet['title'], suite.to_dict())
-        #suites.append(suite)
-        for sub_topics in root_topic.get("topics",[]):
+        for sub_topics in root_topic.get("topics", []):
             suite = sheet_to_suite(sub_topics, product)
+            suite.sheet_name = sheet['title']  # root testsuite has a sheet_name attribute
             suites.append(suite)
 
     return suites, product
@@ -71,41 +65,39 @@ def sheet_to_suite(root_topic, product):
     #change by barron:root_title change to produce name
     root_title = root_topic['title']
     separator = product[-1]
-    print("separator: ", separator)
 
     if separator in config['valid_sep']:
         logging.debug('find a valid separator for connecting testcase title: %s', separator)
         config['sep'] = separator  # set the separator for the testcase's title
     else:
-        config['sep'] = ' '
+        config['sep'] = '>'
 
     suite.name = root_title
     suite.details = root_topic['note']
     suite.sub_suites = []
 
     for suite_dict in root_topic['topics']:
-        suite.sub_suites.append(parse_testsuite(suite_dict, product, root_title))
+        for sub_suite_dict in suite_dict.get("topics", []):
+            suite.sub_suites.append(parse_testsuite(suite_dict, sub_suite_dict, product, root_title))
 
     return suite
 
 
-def parse_testsuite(suite_dict, product, root_title):
+def parse_testsuite(suite_dict, sub_suite_dict, product, root_title):
     testsuite = TestSuite()
-    #root_title = suite_dict["title"]
-    testsuite.name = product[:-1] + "/" + root_title + "/" + suite_dict['title']
+    if product[-1] not in config['valid_sep']:
+        product_name = product
+    else:
+        product_name = product[:-1]
+    testsuite.name = product_name + "/" + root_title + "/" + suite_dict['title'] + "/" + sub_suite_dict['title']
     testsuite.details = suite_dict['note']
     testsuite.testcase_list = []
     logging.debug('start to parse a testsuite: %s', testsuite.name)
 
-    for cases_dict in suite_dict.get('topics', []):
-        print("cases_dict['title']: ", cases_dict['title'])
-        for case in recurse_parse_testcase(cases_dict, suite_dict['title'], cases_dict['title']):
-            print("case: ", case.to_dict())
+    for case_father in sub_suite_dict["topics"]:
+        for case in recurse_parse_testcase(case_father, sub_suite_dict['title'], case_father["title"]):
             testsuite.testcase_list.append(case)
-            print("testsuite: ", testsuite.to_dict())
-        print("testsuite_temp: ", testsuite.to_dict())
     logging.debug('testsuite(%s) parsing complete: %s', testsuite.name, testsuite.to_dict())
-    print("testsuite_total: ", testsuite.to_dict())
     return testsuite
 
 
@@ -120,7 +112,7 @@ def recurse_parse_testcase(case_dict, suite_title, case_title, parent=None):
         parent.append(case_dict)
 
         for child_dict in case_dict.get('topics', []):
-            for case in recurse_parse_testcase(child_dict, parent):
+            for case in recurse_parse_testcase(child_dict, suite_title, case_title, parent):
                 yield case
 
         parent.pop()
@@ -202,7 +194,7 @@ def gen_testcase_title(suite_title, case_title):
     """Link all topic's title as testcase title"""
     #add by barron:去掉括号及括号内的内容
     try:
-        suite_title = suite_title.split('(')[0]
+        suite_title = suite_title.split('(')[0].split('（')[0]
     except Exception:
         pass
 
@@ -210,7 +202,7 @@ def gen_testcase_title(suite_title, case_title):
     # when separator is not blank, will add space around separator, e.g. '/' will be changed to ' / '
     separator = config['sep']
     if separator != ' ':
-        separator = ' {} '.format(separator)
+        separator = '{}'.format(separator)
 
     return separator.join(testcase_title)
 

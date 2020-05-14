@@ -141,5 +141,5 @@ def xmind_testcase_to_json_file(xmind_file):
 
 
 if __name__ == "__main__":
-    #get_xmind_testsuite_list("首页深度知识-V6.0.xmind")
-    get_xmind_testcase_list("首页深度知识-V6.0.xmind")
+    #get_xmind_testsuite_list("Demo.xmind")
+    get_xmind_testcase_list("Demo.xmind")

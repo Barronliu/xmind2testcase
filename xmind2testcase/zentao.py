@@ -90,6 +90,6 @@ def gen_case_type(case_type):
 
 
 if __name__ == '__main__':
-    xmind_file = "直播-V5.9.xmind"
+    xmind_file = "Demo.xmind"
     xmind_to_zentao_csv_file(xmind_file)
     #print('Conver the xmind file to a zentao csv file succssfully: %s', zentao_csv_file)
